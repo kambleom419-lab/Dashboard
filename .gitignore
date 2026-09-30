@@ -1,0 +1,27 @@
+# ============================================================
+# .gitignore  -  only the two .pbix dashboards + README are pushed
+# ============================================================
+
+# ---- 1. Assignment briefs (PDFs) ----
+ASSIGNMENT 02.pdf
+ASSIGNMENT 03.pdf
+*.pdf
+
+# ---- 2. Raw datasets ----
+*.xlsx
+*.xls
+*.csv
+
+# ---- 3. Command Code agent files (taste.md lives in .commandcode/) ----
+.commandcode/
+taste.md
+
+# ---- 4. Office / Power BI temp and lock files ----
+~$*
+*.pbix~
+*.tmp
+
+# ---- 5. OS junk ----
+Thumbs.db
+.DS_Store
+desktop.ini
