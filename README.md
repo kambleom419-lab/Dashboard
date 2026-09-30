@@ -15,6 +15,16 @@ Each workbook follows the **descriptive → diagnostic** pattern: first establis
 
 ## Assignment 02 — College Energy Management
 
+### Dashboard preview
+
+**Descriptive — the campus baseline**
+
+![Assignment 02 — descriptive dashboard](screenshots/energy-descriptive.png)
+
+**Diagnostic — what drives consumption**
+
+![Assignment 02 — diagnostic dashboard](screenshots/energy-diagnostic.png)
+
 **Problem.** The campus is metered per building, but facilities management has no
 consolidated view of where and when electricity is consumed, how much is offset by
 rooftop solar, or which factors — weather, occupancy, academic calendar, day type —
@@ -69,12 +79,24 @@ Decomposition Tree on Total Energy; outage / diesel-backup table.
 - **Residential** buildings (hostels) consume the most (~60 kWh/shift);
   **Administrative** the least (~28 kWh/shift).
 - **Power factor dips** as equipment/motor load rises — a power-quality penalty risk.
+  In the Key Influencers visual, rising occupancy raises the likelihood of
+  *high consumption* ~33×, confirming occupancy as the dominant lever.
 - Solar generation is zero at night and on buildings without rooftop panels,
   capping the campus **solar offset at 11.75%** — a clear case for expanding capacity.
 
 ---
 
 ## Assignment 03 — Chiller Plant Performance
+
+### Dashboard preview
+
+**Descriptive — the chiller fleet baseline**
+
+![Assignment 03 — descriptive dashboard](screenshots/chiller-descriptive.png)
+
+**Diagnostic — why efficiency degrades**
+
+![Assignment 03 — diagnostic dashboard](screenshots/chiller-diagnostic.png)
 
 **Problem.** The campus central plant runs five chillers (2 Centrifugal, 2 Screw,
 1 Absorption). Temperature, flow, pressure and vibration are logged, but there is no
@@ -98,7 +120,38 @@ plus a `DimDate` calendar and a derived `Hour_of_Day` column.
 | Avg COP | `AVERAGE(Chiller_Log_Data[COP])` |
 | Avg Fouling Factor | `AVERAGE(Chiller_Log_Data[Fouling_Factor])` |
 | Avg Vibration | `AVERAGE(Chiller_Log_Data[Vibration_mm_s])` |
-| Mode Chiller Status | `CALCULATE(SELECTEDVALUE(...), TOPN(1, VALUES(...), [Record Count], DESC))` |
+| Mode Chiller Status | most frequent `Chiller_Status` (DAX below) |
+
+```dax
+Mode Chiller Status =
+VAR t =
+    ADDCOLUMNS (
+        VALUES ( Chiller_Log_Data[Chiller_Status] ),
+        "@n", CALCULATE ( COUNTROWS ( Chiller_Log_Data ) )
+    )
+RETURN
+    CONCATENATEX ( TOPN ( 1, t, [@n], DESC ), Chiller_Log_Data[Chiller_Status], ", " )
+```
+
+### Headline numbers
+
+| KPI | Value |
+|---|---|
+| Total Cooling Load | 297.30 K TR |
+| Total Compressor Energy | 1.62 M kWh |
+| Total Energy Cost | ₹ 13.78 M |
+| Avg COP (all types) | 4.60 |
+| Avg Fouling Factor | 1.08 |
+
+### Per-chiller efficiency
+
+| Chiller | Type | Avg COP | Avg Fouling | Max Run Hours |
+|---|---|---|---|---|
+| CH-01 | Centrifugal | 5.71 | 1.07 | 16,183.9 |
+| CH-02 | Centrifugal | 5.71 | 1.07 | 16,050.9 |
+| CH-03 | Screw | 4.96 | 1.08 | 14,793.3 |
+| CH-04 | Screw | 4.96 | 1.07 | 14,755.4 |
+| CH-05 | Absorption | 0.70 | 1.08 | 15,866.7 |
 
 ### Dashboards
 
@@ -116,13 +169,32 @@ Pareto of `Fault_Code` counts.
 - **Within** a chiller type, COP falls as fouling rises (**r ≈ −0.40**) and as
   ambient wet-bulb rises (**r ≈ −0.38**).
 - Across all types the COP–fouling correlation is **near zero** — Absorption
-  (COP ≈ 0.7) and Centrifugal (COP ≈ 6.0) operate on different scales. The analysis
+  (COP ≈ 0.70) and Centrifugal (COP ≈ 5.71) operate on different scales. The analysis
   **must** be segmented by chiller type; this is a deliberate Simpson's-paradox case.
 - **Vibration tracks cumulative run-hours almost perfectly (r ≈ 0.95)** → bearing wear
   is the dominant mechanical risk, consistent across all chillers.
 - **Condenser approach rises with fouling** (r ≈ 0.21) → usable as a cleaning-schedule trigger.
 - Status mix: **Healthy 45.4% · Warning 49.2% · Critical 5.4%** — nearly half the fleet
-  is already in Warning.
+  is already in Warning, and for every chiller the most frequent state is **Warning**.
+- Faults are rare (**4.3%** of readings) and led by **Compressor Trip** (2.00%) and
+  **Sensor Drift** (0.88%).
+
+---
+
+## Repository contents
+
+```
+Descriptive dashboard.pbix      Assignment 02 — energy   (descriptive + diagnostic pages)
+Descriptive Dashboard2.pbix     Assignment 03 — chiller  (descriptive + diagnostic pages)
+Descriptive dashboard.pdf       Assignment 02 — rendered report export
+Descriptive Dashboard2.pdf      Assignment 03 — rendered report export
+README.md
+screenshots/
+├── energy-descriptive.png
+├── energy-diagnostic.png
+├── chiller-descriptive.png
+└── chiller-diagnostic.png
+```
 
 ---
 
@@ -131,7 +203,8 @@ Pareto of `Fault_Code` counts.
 1. Install **Power BI Desktop** (free, Windows).
 2. Open either `.pbix` file. The data is embedded in the model, so the report
    renders immediately without the original Excel workbook.
-3. Use the slicers to filter by date, building/chiller type, period and shift.
+3. Prefer a quick look? Open the `.pdf` export in the same folder — no install needed.
+4. Use the slicers to filter by date, building/chiller type, period and shift.
 
 ---
 

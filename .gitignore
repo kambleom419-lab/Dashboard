@@ -1,11 +1,10 @@
 # ============================================================
-# .gitignore  -  only the two .pbix dashboards + README are pushed
+# .gitignore  -  rules for what is NOT pushed
 # ============================================================
 
-# ---- 1. Assignment briefs (PDFs) ----
+# ---- 1. Assignment briefs (not part of the deliverable) ----
 ASSIGNMENT 02.pdf
 ASSIGNMENT 03.pdf
-*.pdf
 
 # ---- 2. Raw datasets ----
 *.xlsx
