@@ -205,9 +205,3 @@ screenshots/
    renders immediately without the original Excel workbook.
 3. Prefer a quick look? Open the `.pdf` export in the same folder — no install needed.
 4. Use the slicers to filter by date, building/chiller type, period and shift.
-
----
-
-## Author
-
-*Your Name* — Data Analytics Lab, Mechanical Engineering
